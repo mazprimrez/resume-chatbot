@@ -23,16 +23,7 @@ def inference(client, question: str, context: str):
                     Context: Notable Projects at Vidio:  
                         • Recommendation System : Designed and implemented a collaborative filtering 
                         recommendation system using cosine similarity, which improved user engagement 
-                        metrics significantly.  
-                        the finance sector to summarize and analyze new and updated 
-                        regulat ions, thereby aiding GRC analysts in streamlining their workflow and automating 
-                        analysis to inform the team faster.  
-                        Notable Projects at Metrodata:  
-                        • HR Chatbot Development : Led the development of a chatbot using Microsoft Azure 
-                        Open AI for the HR department.  This project involved integrating NLP models to 
-                        answer employee queries about company policies, resulting in a 30% reduction in HR 
-                        response time.  
-                        • Regulation Analysis Tool : Developed a Generative AI tool for the finance industry 
+                        metrics significantly.
                     Question: Can you tell me about a specific project at Vidio?"""},
     {"role": "assistant", "content":"At Vidio, she developed a recommendation model using collaborative filtering with cosine similarity, achieving a notable 0.2 Recall@20 and a 10%+ click-through rate, surpassing in-house model-based recommendation systems."},
     {"role": "user", "content": prompt},
