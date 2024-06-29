@@ -1,0 +1,58 @@
+[
+    {
+        "question": "What did you do at Metrodata?",
+        "expected_answer": "At Metrodata, I worked as a Data Scientist/AI Engineer. I implemented Generative AI Natural Language Processing using Microsoft Azure Open AI to build a chatbot for the Human Resources Division. I also utilized Generative AI for the finance industry to summarize and analyze new and updated regulations."
+    },
+    {
+        "question": "Can you tell me about a specific project at Vidio?",
+        "expected_answer": "At Vidio, I developed a recommendation model using collaborative filtering with cosine similarity, achieving a notable 0.2 Recall@20 and a 10%+ click-through rate, surpassing in-house model-based recommendation systems."
+    },
+    {
+        "question": "What challenges did you face while implementing the HR chatbot at Metrodata?",
+        "expected_answer": "As a new hire with little knowledge about chatbots and NLP, I had to learn outside working hours to understand the project requirements thoroughly. This self-learning enabled me to contribute effectively to the project."
+    },
+    {
+        "question": "Where did you complete your undergraduate studies?",
+        "expected_answer": "I completed my Bachelor of Science degree in Mathematics at Institut Teknologi Bandung, graduating with a GPA of 3.16/4.00."
+    },
+    {
+        "question": "What was your undergraduate thesis about?",
+        "expected_answer": "My undergraduate thesis was on 'ASABRI and JIWASRAYA Stock Portfolio Optimization using Adaptive Spiral Optimization Method.'"
+    },
+    {
+        "question": "What programming tools are you proficient in?",
+        "expected_answer": "I am proficient in Python (with libraries such as Dash Plotly, Streamlit, Pandas, Sklearn, Keras, SHAP, Pytest, Flask, and more), PySpark, and SQL."
+    },
+    {
+        "question": "How have you used Pandas in your projects?",
+        "expected_answer": "I have used Pandas for data analysis and data processing in various projects."
+    },
+    {
+        "question": "What tools have you used for creating front-end applications?",
+        "expected_answer": "I have used Streamlit for creating front-end applications."
+    },
+    {
+        "question": "Can you describe your experience as a mentor with Generation Girls?",
+        "expected_answer": "I volunteered as a Data Science Mentor with Generation Girls, where I inspired and guided young learners. I also collaborated with Generation Girls and the Ministry of Communication and Informatics to mentor elementary school students both offline and online."
+    },
+    {
+        "question": "What unique methods do you use in your teaching?",
+        "expected_answer": "I give simple examples to help students understand complex topics. For instance, to explain clustering to elementary school students, I used the example of a McDonald’s delivery system, where clustering is used to optimize delivery routes."
+    },
+    {
+        "question": "Do you work on personal data science or AI projects?",
+        "expected_answer": "Yes, I work on personal data science and AI projects, which can be viewed on my portfolio website."
+    },
+    {
+        "question": "What are your interests outside of work?",
+        "expected_answer": "My interests include reading and hiking."
+    },
+    {
+        "question": "What workshops or courses have you attended?",
+        "expected_answer": "I have attended a Coursera course on Machine Learning, a Microsoft Azure Hackathon where I learned about Open AI, and the LangChain deep learning course from deeplearning.ai."
+    },
+    {
+        "question": "What are your career goals?",
+        "expected_answer": "My short-term goal is to become a T-shaped Data Scientist. Long-term, I am particularly passionate about exploring Natural Language Processing (NLP) further."
+    }
+]
