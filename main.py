@@ -1,7 +1,7 @@
 from utils.utils import get_context, inference, get_document
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
-from flask import Flask, request
+from flask import Flask, jsonify, request
 
 from openai import OpenAI
 import os
@@ -18,11 +18,18 @@ def get_answer(question):
     context = get_context(question, faiss_db)
     return inference(client, question=question, context=context)
 
-@app.route('/', methods=['POST'])
+@app.route('/predict', methods=['POST', 'GET'])
 def main():
-    question = request.get_json()
-    return get_answer(question=question)
+    if request.method == 'GET':
+        return jsonify({"status": "API is running"})
+    else:
+        question = request.get_json()
+        if question["input"]:
+            answer = get_answer(question=question['input'])
+        else:
+            answer = "Hello there! Do you have any questions about Mazi?"
+        return jsonify({'prediction': answer})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
     
