@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/1214cd86-63f5-401c-8073-e18f043af901/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/resume-chatbot",
+    "appService.deploySubpath": "."
+}

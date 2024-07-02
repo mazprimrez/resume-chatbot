@@ -9,7 +9,7 @@ import os
 app = Flask(__name__)
 docs = get_document()
 client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
+    api_key="sk-proj-3RVXTr4Ixl6R6rfTN7clT3BlbkFJowpur0slEdi5s8L7tJe5"
 )
 encoder = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L12-v2', model_kwargs = {'device': "cpu"})
 faiss_db = FAISS.from_documents(docs, encoder)
@@ -31,5 +31,5 @@ def main():
         return jsonify({'prediction': answer})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
     
