@@ -4,4 +4,6 @@ langchain_huggingface==0.0.3
 Flask==3.0.3
 langchain==0.0.179
 gunicorn==21.2.0
-faiss==1.8.0
+faiss-cpu==1.8.0.post1
+langchain-openai==0.1.8
+tiktoken==0.7.0
