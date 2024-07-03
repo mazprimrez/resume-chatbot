@@ -4,7 +4,6 @@ from langchain.vectorstores import FAISS
 from flask import Flask, jsonify, request
 
 from openai import OpenAI
-import os
 
 app = Flask(__name__)
 docs = get_document()
