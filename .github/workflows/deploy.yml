@@ -20,7 +20,7 @@ jobs:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
 
     - name: Configure Docker
-      run: gcloud auth configure-docker
+      run: gcloud auth configure-docker asia-southeast2-docker.pkg.dev
 
     - name: Build Docker image
       run: docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:${{ github.sha }} .
