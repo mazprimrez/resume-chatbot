@@ -33,5 +33,5 @@ jobs:
         gcloud run deploy flask-api \
           --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/flask-api:${{ github.sha }} \
           --platform managed \
-          --region us-central1 \
+          --region asia-southeast2 \
           --allow-unauthenticated
