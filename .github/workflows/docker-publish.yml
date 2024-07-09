@@ -3,7 +3,7 @@ name: Docker build and push
 on: [push]
 
 jobs:
-  authentication:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,14 +28,6 @@ jobs:
       run: |
         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
 
-  docker_build_and_push:
-    needs: authentication
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
     - name: Build Docker image
       run: |
         docker build -t sparklingdust/resume_chatbot:latest .
@@ -43,14 +35,6 @@ jobs:
     - name: Push Docker image to Docker Hub
       run: |
         docker push sparklingdust/resume_chatbot:latest
-
-  deployment:
-    needs: docker_build_and_push
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
 
     - name: Deploy to Cloud Run
       run: |
