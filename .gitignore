@@ -1,3 +1,4 @@
 .env
 .vscode
-experiment.ipynb
+notebook/
+dataset/about_me.*
