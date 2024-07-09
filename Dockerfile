@@ -1,6 +1,9 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.10-slim
 
+# Set environment variables
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+
 # Set the working directory
 WORKDIR /app
 

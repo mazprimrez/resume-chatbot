@@ -1,20 +1,22 @@
-from utils.utils import get_context, inference, get_document
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from utils.utils import search_index, inference, get_document, index_documents, get_context
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 from openai import OpenAI
+import os
 
 app = Flask(__name__)
+CORS(app)
+
 docs = get_document()
+index, embeddings = index_documents()
 client = OpenAI(
-    api_key="sk-proj-3RVXTr4Ixl6R6rfTN7clT3BlbkFJowpur0slEdi5s8L7tJe5"
+    api_key=os.getenv('OPENAI_API_KEY')
 )
-encoder = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L12-v2', model_kwargs = {'device': "cpu"})
-faiss_db = FAISS.from_documents(docs, encoder)
 
 def get_answer(question):
-    context = get_context(question, faiss_db)
+    distances, indices = search_index(index, query=question, client=client, k=2)
+    context = get_context(indices, docs)
     return inference(client, question=question, context=context)
 
 @app.route('/predict', methods=['POST', 'GET'])
@@ -30,5 +32,5 @@ def main():
         return jsonify({'prediction': answer})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080)
     
