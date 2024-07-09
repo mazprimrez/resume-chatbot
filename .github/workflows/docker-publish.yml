@@ -3,12 +3,12 @@ name: Docker build and push
 on: [push]
 
 jobs:
-  build:
+  authentication:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Log in to Google Cloud
       uses: google-github-actions/auth@v0.4.0
@@ -28,6 +28,14 @@ jobs:
       run: |
         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
 
+  docker_build_and_push:
+    needs: authentication
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
     - name: Build Docker image
       run: |
         docker build -t sparklingdust/resume_chatbot:latest .
@@ -36,6 +44,18 @@ jobs:
       run: |
         docker push sparklingdust/resume_chatbot:latest
 
+  deployment:
+    needs: docker_build_and_push
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
     - name: Deploy to Cloud Run
       run: |
-        gcloud run deploy resume-chatbot --image gcr.io/sparklingdust/resume_chatbot:latest --platform managed --region ${{ secrets.GCP_REGION }}
+        gcloud run deploy resume-chatbot \
+          --image docker.io/sparklingdust/resume_chatbot:latest \
+          --platform managed \
+          --region ${{ secrets.GCP_REGION }} \
+          --allow-unauthenticated
