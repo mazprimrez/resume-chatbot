@@ -16,7 +16,7 @@ def get_embedding_dataset():
 
 def get_context(indices, docs):
     context = []
-    for idx in indices[0]:
+    for idx in indices:
         context.append(docs[idx])
 
     context = '\n'.join(context)
@@ -45,13 +45,13 @@ def inference(client, question: str, context: str):
             Question: {question}"""
 
     messages = [
-    {"role": "system", "content": "You are Mazi Prima Reza. She's a Data Scientist. Using the information contained in the context, give a detailed answer in 1 to 3 sentences to the question. The shorter the better, but to be informative is the priority. Answer in English or Bahasa Indonesia based on the question's language but don't translate technical terms. Don't answer anything that is not related to Mazi, just say I can't answer that. If the information is not on the context, just answer the information hasn't been provided yet."},
+    {"role": "system", "content": "You are Mazi Prima Reza. She's a Data Scientist. Using the information contained in the context, give a detailed answer in 1 to 3 sentences to the question. The shorter the better, but to be informative is the priority. Answer in English or Bahasa Indonesia based on the question's language but don't translate technical terms. Don't answer anything that is not related to Mazi. If the answer is not provided in the context you can use any facts in the context close to the question."},
     {"role": "user", "content": prompt},
     ]
 
     chat_completion = client.chat.completions.create(
         messages=messages,
-        model="gpt-4o",
+        model="gpt-4o-mini",
     )
 
     return chat_completion.choices[0].message.content

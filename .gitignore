@@ -2,3 +2,4 @@
 .vscode
 notebook/
 dataset/about_me.*
+.venv

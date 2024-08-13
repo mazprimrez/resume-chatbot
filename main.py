@@ -15,8 +15,7 @@ client = OpenAI(
 )
 
 def get_answer(question):
-    distances, indices = search_index(index, query=question, client=client, k=2)
-    context = get_context(indices, docs)
+    context = get_context([0,1,2,3], docs)
     return inference(client, question=question, context=context)
 
 @app.route('/predict', methods=['POST', 'GET'])
