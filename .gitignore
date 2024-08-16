@@ -3,3 +3,4 @@
 notebook/
 dataset/about_me.*
 .venv
+__pycache__

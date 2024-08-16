@@ -1,4 +1,3 @@
-
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
 from langchain_core.messages import AIMessage
@@ -42,7 +41,7 @@ class ProfessionalQueries(BaseModel):
 @tool(args_schema=ProfessionalQueries)
 def professional_queries(query: str) -> str:
     """function to generate answer related to Mazi's professional experience in AI and Data Scientist"""
-    return ProfessionalQuestions.inference(question=query)
+    return ProfessionalQuestions().inference(question=query)
 
 class Greetings(BaseModel):
     query: str = Field(description="Greetings")

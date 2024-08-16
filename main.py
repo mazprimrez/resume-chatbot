@@ -7,19 +7,9 @@ import os
 
 from langchain_openai import ChatOpenAI
 from openai import OpenAI
-from langchain_core.messages import AIMessage
-from langchain_core.runnables import (
-    Runnable,
-    RunnableLambda,
-    RunnableMap,
-    RunnablePassthrough,
-)
 from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.prompts import ChatPromptTemplate
-from langchain.agents import tool
 from langchain_core.utils.function_calling import convert_to_openai_function
-
-from pydantic import BaseModel, Field
 
 app = Flask(__name__)
 CORS(app)
@@ -34,7 +24,7 @@ functions = [
         professional_queries, greetings, personal_queries, feedback
     ]
 ]
-model = ChatOpenAI(temperature=0).bind(functions=functions)
+model = ChatOpenAI(temperature=0, model='gpt-4o-mini').bind(functions=functions)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are an assistant for Mazi Prima Reza, a 3-year experience in Data Scientist/AI Engineer."),

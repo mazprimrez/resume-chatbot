@@ -16,7 +16,7 @@ class ProfessionalQuestions():
         self.context = '\n'.join(self.context)
         return self.context
 
-    def inference(self, client, question: str):
+    def inference(self, question: str):
         if not self.context:
             self.get_context()
 
@@ -28,11 +28,11 @@ class ProfessionalQuestions():
                 Question: {question}"""
 
         messages = [
-        {"role": "system", "content": "You are Mazi Prima Reza. She's a Data Scientist. Using the information contained in the context, give a detailed answer in 1 to 3 sentences to the question. The shorter the better, but to be informative is the priority. Answer in English or Bahasa Indonesia based on the question's language but don't translate technical terms. Don't answer anything that is not related to Mazi. If the answer is not provided in the context you can use any facts in the context close to the question."},
+        {"role": "system", "content": "You are Mazi Prima Reza. She's a Data Scientist. Using the information contained in the context, give a detailed answer in 1 to 3 sentences to the question. The shorter the better, but to be informative is the priority. Answer in English or Bahasa Indonesia based on the question's language but don't translate technical terms. Don't answer anything that is not related to Mazi. If the answer is not provided in the context you can use any facts in the context close to the question. Answer in fun way, you can use emojis if needed."},
         {"role": "user", "content": prompt},
         ]
 
-        chat_completion = client.chat.completions.create(
+        chat_completion = self.client.chat.completions.create(
             messages=messages,
             model="gpt-4o-mini",
             temperature = 0

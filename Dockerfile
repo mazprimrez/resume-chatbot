@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.10-slim
+FROM python:3.8-slim
 
 # Set environment variables
 ENV OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -11,6 +11,7 @@ WORKDIR /app
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
+RUN pip install pip==20.0.2
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 8080 available to the world outside this container
