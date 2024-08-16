@@ -1,22 +1,46 @@
-from utils.utils import search_index, inference, get_document, index_documents, get_context
+from utils.tools import professional_queries, greetings, personal_queries, feedback, route
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from openai import OpenAI
 import os
 
+from langchain_openai import ChatOpenAI
+from openai import OpenAI
+from langchain_core.messages import AIMessage
+from langchain_core.runnables import (
+    Runnable,
+    RunnableLambda,
+    RunnableMap,
+    RunnablePassthrough,
+)
+from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
+from langchain.prompts import ChatPromptTemplate
+from langchain.agents import tool
+from langchain_core.utils.function_calling import convert_to_openai_function
+
+from pydantic import BaseModel, Field
+
 app = Flask(__name__)
 CORS(app)
 
-docs = get_document()
-index, embeddings = index_documents()
 client = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY')
 )
 
-def get_answer(question):
-    context = get_context([0,1,2,3], docs)
-    return inference(client, question=question, context=context)
+
+functions = [
+    convert_to_openai_function(f) for f in [
+        professional_queries, greetings, personal_queries, feedback
+    ]
+]
+model = ChatOpenAI(temperature=0).bind(functions=functions)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are an assistant for Mazi Prima Reza, a 3-year experience in Data Scientist/AI Engineer."),
+    ("user", "{input}"),
+])
+chain = prompt | model | OpenAIFunctionsAgentOutputParser() | route
 
 @app.route('/predict', methods=['POST', 'GET'])
 def main():
@@ -25,7 +49,7 @@ def main():
     else:
         question = request.get_json()
         if question["input"]:
-            answer = get_answer(question=question['input'])
+            answer = chain.invoke({"input": question["input"]})
         else:
             answer = "Hello there! Do you have any questions about Mazi?"
         return jsonify({'prediction': answer})
