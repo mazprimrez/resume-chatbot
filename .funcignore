@@ -1,7 +1,0 @@
-.venv
-.git
-.gitignore
-notebook/
-dataset/about_me.*
-.python_packages
-__pycache__
