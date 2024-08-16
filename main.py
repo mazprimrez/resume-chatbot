@@ -10,7 +10,9 @@ from openai import OpenAI
 from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.utils.function_calling import convert_to_openai_function
+from dotenv import load_dotenv
 
+load_dotenv()  # This loads environment variables from a .env file
 app = Flask(__name__)
 CORS(app)
 
@@ -24,7 +26,7 @@ functions = [
         professional_queries, greetings, personal_queries, feedback
     ]
 ]
-model = ChatOpenAI(temperature=0, model='gpt-4o-mini').bind(functions=functions)
+model = ChatOpenAI(temperature=0, model='gpt-4o-mini', api_key=os.getenv('OPENAI_API_KEY')).bind(functions=functions)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are an assistant for Mazi Prima Reza, a 3-year experience in Data Scientist/AI Engineer."),
