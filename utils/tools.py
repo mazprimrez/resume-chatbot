@@ -1,25 +1,16 @@
-from langchain_openai import ChatOpenAI
 from openai import OpenAI
-from langchain_core.messages import AIMessage
-from langchain_core.runnables import (
-    Runnable,
-    RunnableLambda,
-    RunnableMap,
-    RunnablePassthrough,
-)
-from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
-from langchain.prompts import ChatPromptTemplate
 from langchain.agents import tool
-from langchain_core.utils.function_calling import convert_to_openai_function
 
 from pydantic import BaseModel, Field
-from utils.utils import ProfessionalQuestions
+from utils.utils import ProfessionalQuestions, toDatabase
 
 import os
 
 client = OpenAI(
     api_key=os.getenv('OPENAI_API_KEY')
 )
+database = toDatabase()
+model = ProfessionalQuestions()
 
 from langchain.schema.agent import AgentFinish
 def route(result):
@@ -35,14 +26,16 @@ def route(result):
         return tools[result.tool].run(result.tool_input)
 
 
+# answering professional related question
 class ProfessionalQueries(BaseModel):
     query: str = Field(description="Questions about professional experience")
 
 @tool(args_schema=ProfessionalQueries)
 def professional_queries(query: str) -> str:
     """function to generate answer related to Mazi's professional experience in AI and Data Scientist"""
-    return ProfessionalQuestions().inference(question=query)
+    return model.inference(question=query)
 
+# respoding to greetings message
 class Greetings(BaseModel):
     query: str = Field(description="Greetings")
 
@@ -52,12 +45,10 @@ def greetings(query: str) -> str:
     response = client.chat.completions.create(
         model="gpt-4o-mini",  # You can use other engines like gpt-3.5-turbo or gpt-4 if available
         messages=[
-            {"role":"system", "content":"You are an assistant for Mazi Prima Reza, a 3-year experience in Data Scientist/AI Engineer. You'll help her generate greetings based on users input, please make the greetings fun and add emojis if needed. After responding to user greetings, you should ask them is there any questions you'd like to ask about Mazi in fun way."},
+            {"role":"system", "content":"You are an assistant for Mazi Prima Reza. You'll help her generate greetings based on users input, please make the greetings fun and add emojis if needed. After responding to user greetings, you should ask them is there any questions you'd like to ask about Mazi. Answer in polite and fun way. Answer in user language."},
             {"role":"user", "content":query}
         ],
-        max_tokens=50,
-        n=1,
-        stop=None,
+        max_tokens=100,
         temperature=0.7,
     )
     
@@ -65,6 +56,8 @@ def greetings(query: str) -> str:
     greeting = response.choices[0].message.content
     return greeting
 
+
+# answering personal related question
 class PersonalQueries(BaseModel):
     query: str = Field(description="Queries about personal information")
 
@@ -74,9 +67,9 @@ def personal_queries(query: str) -> str:
     context = ProfessionalQuestions().get_context()
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",  # You can use other engines like gpt-3.5-turbo or gpt-4 if available
+        model="gpt-4o-mini",
         messages=[
-            {"role":"system", "content":"You are an assistant for Mazi Prima Reza, a 3-year experience in Data Scientist/AI Engineer. You'll help her generate response about user asking about her personal information. You can't answer the questions, but you can state one fun fact about Mazi from the context. Answer in fun way with emojis."},
+            {"role":"system", "content":"You are an assistant for Mazi Prima Reza, a 3-year experience in Data Scientist/AI Engineer. You'll help her generate response about user asking about her personal information. You can't answer the questions, but you can state one fun fact about Mazi from the context. Answer in fun way with emojis. Answer in user language."},
             {"role":"user", "content":
             f"""
             context: {context}
@@ -85,15 +78,14 @@ def personal_queries(query: str) -> str:
              }
         ],
         max_tokens=100,
-        n=1,
-        stop=None,
-        temperature=0.7,
+        temperature=0.2,
     )
     
     # Extract the generated greeting from the response
     greeting = response.choices[0].message.content
     return greeting
 
+# respoding to feedback related message
 class Feedback(BaseModel):
     query: str = Field(description="Queries about feedback on chatbot")
 
@@ -112,11 +104,10 @@ def feedback(query: str) -> str:
              }
         ],
         max_tokens=100,
-        n=1,
-        stop=None,
         temperature=0.7,
     )
     
     # Extract the generated greeting from the response
     greeting = response.choices[0].message.content
+    toDatabase().store_to_database(query)
     return greeting
