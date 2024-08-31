@@ -2,5 +2,6 @@
 .vscode
 notebook/
 dataset/about_me.*
+dataset/*.pdf
 .venv
 __pycache__

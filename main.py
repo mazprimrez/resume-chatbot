@@ -1,4 +1,4 @@
-from utils.tools import professional_queries, greetings, personal_queries, feedback, route
+from utils.tools import professional_queries, greetings, personal_queries, feedback, route, contact
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -22,7 +22,7 @@ client = OpenAI(
 
 functions = [
     convert_to_openai_function(f) for f in [
-        professional_queries, greetings, personal_queries, feedback
+        professional_queries, greetings, personal_queries, feedback, contact
     ]
 ]
 model = ChatOpenAI(temperature=0, model='gpt-4o-mini', api_key=os.getenv('OPENAI_API_KEY')).bind(functions=functions)
