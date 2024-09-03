@@ -2,7 +2,7 @@ numpy==1.24.4
 openai==1.35.7
 Flask==3.0.3
 tiktoken==0.7.0
-flask-cors==4.0.1
+flask-cors==5.0.0
 langchain==0.2.13
 langchain-chroma==0.1.2
 langchain-community>=0.2.9
