@@ -5,3 +5,4 @@ dataset/about_me.*
 dataset/*.pdf
 .venv
 __pycache__
+test.*

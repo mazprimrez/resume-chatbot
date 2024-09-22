@@ -65,7 +65,7 @@ class PersonalQueries(BaseModel):
 @tool(args_schema=PersonalQueries)
 def personal_queries(query: str) -> str:
     """Generate response for queries about personal information."""
-    return PersonalQuestions().inference()
+    return PersonalQuestions().inference(question=query)
 
 
 # respoding to feedback related message

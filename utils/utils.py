@@ -87,7 +87,7 @@ class PersonalQuestions():
             {"role":"user", "content":
             f"""
             context: {self.context}
-            question:{self.query}
+            question:{question}
             """
              }
         ]
