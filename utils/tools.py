@@ -1,123 +1,105 @@
-from openai import OpenAI
-from langchain.agents import tool
-
-from pydantic import BaseModel, Field
-from utils.utils import ProfessionalQuestions, toDatabase, PersonalQuestions
-
+import logging
 import os
+from typing import Annotated, Literal
 
-client = OpenAI(
-    api_key=os.getenv('OPENAI_API_KEY')
-)
-database = toDatabase()
-model = ProfessionalQuestions()
+import numpy as np
+from langchain_core.messages.tool import ToolMessage
+from langchain_core.runnables import RunnableConfig
+from langchain_core.tools import tool
+from langchain_openai import AzureChatOpenAI
+from langgraph.graph import END, START, StateGraph
+from langgraph.graph.message import add_messages
+from typing_extensions import TypedDict
 
-from langchain.schema.agent import AgentFinish
-def route(result):
-    if isinstance(result, AgentFinish):
-        return result.return_values['output']
-    else:
-        tools = {
-            "professional_queries": professional_queries, 
-            "greetings": greetings,
-            "personal_queries": personal_queries,
-            "feedback": feedback,
-            "contact": contact
-        }
-        return tools[result.tool].run(result.tool_input)
+from utils import prompt, utils
 
 
-# answering professional related question
-class ProfessionalQueries(BaseModel):
-    query: str = Field(description="Questions about professional experience")
-
-@tool(args_schema=ProfessionalQueries)
-def professional_queries(query: str) -> str:
-    """function to generate answer related to Mazi's professional experience in AI and Data Scientist"""
-    return model.inference(question=query)
-
-# respoding to greetings message
-class Greetings(BaseModel):
-    query: str = Field(description="Greetings")
-
-@tool(args_schema=Greetings)
-def greetings(query: str) -> str:
-    """Generate response for greetings."""
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role":"system", "content":"You are an assistant for Mazi Prima Reza. You'll help her generate greetings based on users input, please make the greetings fun and add emojis if needed. After responding to user greetings, you should ask them is there any questions you'd like to ask about Mazi. Answer in polite and fun way. Answer in user language."},
-            {"role":"user", "content":query}
-        ],
-        max_tokens=100,
-        temperature=0.7,
-    )
+class State(TypedDict):
+    # Messages have the type "list". The `add_messages` function
+    # in the annotation defines how this state key should be updated
+    # (in this case, it appends messages to the list, rather than overwriting them)
+    messages: Annotated[list, add_messages]
     
-    # Extract the generated greeting from the response
-    greeting = response.choices[0].message.content
-    return greeting
-
-
-# answering personal related question
-class PersonalQueries(BaseModel):
-    query: str = Field(description="Queries about personal information")
-
-@tool(args_schema=PersonalQueries)
-def personal_queries(query: str) -> str:
-    """Generate response for queries about personal information."""
-    return PersonalQuestions().inference(question=query)
-
-
-# respoding to feedback related message
-class Feedback(BaseModel):
-    query: str = Field(description="Queries about feedback on chatbot")
-
-@tool(args_schema=Feedback)
-def feedback(query: str) -> str:
-    """Generate response for queries about feedback and store feedback to database."""
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini", 
-        messages=[
-            {"role":"system", "content":"You are an assistant for Mazi Prima Reza, a 3-year experience in Data Scientist/AI Engineer. You'll help her generate response for feedback about this chatbot. Say that Mazi's still learning on building this and keep this feedback in a database to be read later"},
-            {"role":"user", "content":
-            f"""
-            question:{query}
-            """
-             }
-        ],
-        max_tokens=100,
-        temperature=0.7,
-    )
+@tool
+def search():
+    """Get context about Mazi Prima Reza Professional & Personal information"""
     
-    # Extract the generated greeting from the response
-    greeting = response.choices[0].message.content
-    toDatabase().store_to_database(query)
-    return greeting
+@tool
+def to_database():
+    """Detect feedback or frustated response (e.g. "This is stupid" or other frustation response)
+    tool will send feedback response to noSQL database"""
 
-# respoding to feedback related message
-class Contact(BaseModel):
-    query: str = Field(description="Queries about contacting or want to hire")
+tools = [search, to_database]
 
-@tool(args_schema=Contact)
-def contact(query: str) -> str:
-    """Generate response for Queries about contacting or want to hire."""
+class Agent:
+    def __init__(self):
+        self._llm_tools = AzureChatOpenAI(temperature=0, 
+                      model='gpt-4o', 
+                      api_key=os.getenv('OPENAI_API_KEY'),
+                      azure_endpoint=os.getenv("API_ENDPOINT"),
+                      api_version="2024-09-01-preview").bind_tools(tools)
+        self.send_to_database = utils.toDatabase()
+        workflow = StateGraph(State)
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role":"system", "content":"You are an assistant for Mazi Prima Reza, a 3-year experience in Data Scientist/AI Engineer. You'll help her generate response for queries about contacting or hiring her. Say thank you and give her email maziprimareza@gmail.com. Use professional tone but still fun"},
-            {"role":"user", "content":
-            f"""
-            question:{query}
-            """
-             }
-        ],
-        max_tokens=100,
-        temperature=0.7,
-    )
+        workflow.add_node("agent", self.call_model)
+        workflow.add_node("tools", self.tool_node)
+
+        workflow.add_edge(START, "agent")
+        workflow.add_edge("tools", "agent")
+
+        workflow.add_conditional_edges("agent", self.maybe_route_to_tools)
+
+        self.graph = workflow.compile()
+        
+        file = np.load("dataset/docs.npy", allow_pickle=True)
+        context = []
+        for idx in range(len(file)):
+            context.append(file[idx])
+        self.context_mazi = '\n'.join(context)
+
+    # Define the function that determines whether to continue or not
+    @staticmethod
+    def maybe_route_to_tools(state: State) -> Literal["tools", "__end__"]:
+        """Route between human or tool nodes, depending if a tool call is made."""
+        if not (msgs := state.get("messages", [])):
+            raise ValueError(f"No messages found when parsing state: {state}")
+
+        msg = msgs[-1]
+
+        if hasattr(msg, "tool_calls") and len(msg.tool_calls) > 0:
+            return "tools"
+        else:
+            return END
+
+    def call_model(self, state: State, config: RunnableConfig):
+        system_message = prompt.SYSTEM_MESSAGE
+        messages = [system_message] + ["\n\n User:"] + state["messages"]
+
+        response = self._llm_tools.invoke(messages, config)
+        # We return a list, because this will get added to the existing list
+        return {"messages": response}
     
-    # Extract the generated greeting from the response
-    greeting = response.choices[0].message.content
-    toDatabase().store_to_database(query)
-    return greeting
+    def tool_node(self, state: State) -> State:
+        """Tools node to get more context on Mazi or send feedback to database when users feeling"""
+        tool_msg = state.get("messages", [])[-1]
+        outbound_msgs = []
+            
+        for tool_call in tool_msg.tool_calls:
+            if tool_call["name"] == "search":
+                context = "~Context: " + self.context_mazi
+            elif tool_call["name"] == "to_database":
+                self.send_to_database.store_to_database(tool_call["args"]["query"])
+                logging.info(f"Stored feedback to database")
+                context = "~Context: Succeeded to send to database"
+            else:
+                raise NotImplementedError(f'Unknown tool call: {tool_call["name"]}')
+            
+            # Record the tool results as tool messages.
+            outbound_msgs.append(
+                ToolMessage(
+                    content=context,
+                    name=tool_call["name"],
+                    tool_call_id=tool_call["id"],
+                )
+            )
+        return {"messages": outbound_msgs}
