@@ -3,13 +3,10 @@ Flask==3.0.3
 tiktoken==0.7.0
 flask-cors==5.0.0
 langchain==0.2.6
-langchain-core==0.3.10
-langchain-community>=0.2.9
-langchain-openai==0.2.2
-langchainhub==0.1.21
+langchain-core
+langchain-openai
 pydantic==1.10.10
 pymongo==4.8.0
 python-dotenv
 langgraph==0.2.35
 langsmith==0.1.134
-langchain_anthropic==0.2.3
