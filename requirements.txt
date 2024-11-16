@@ -5,8 +5,8 @@ flask-cors==5.0.0
 langchain==0.2.6
 langchain-core
 langchain-openai
-pydantic==1.10.10
 pymongo==4.8.0
 python-dotenv
 langgraph==0.2.35
 langsmith==0.1.134
+pydantic==2.9.2
